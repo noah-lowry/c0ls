@@ -29,13 +29,14 @@ signature help inside `norm(q)`:
 
   $ ./lsp_client.exe "$(command -v c0ls)" demo.c0 15 11 14 5 15 16
   CAPS: hoverProvider=true definitionProvider=true documentSymbolProvider=true positionEncoding="utf-8"
-  CAPS2: completion=yes signatureHelp=yes
+  CAPS2: completion=yes signatureHelp=yes semanticTokens=yes
   DIAGNOSTICS: 0
   HOVER: ```c0\nint norm(struct point* p)\n//@requires p != NULL;\n```\nManhattan norm of p
   DEFINITION: demo.c0 line 6
   SYMBOLS: struct point, norm, main
   COMPLETION (2): x, y
   SIGNATURE: int norm(struct point* p)
+  SEMTOK (45): struct:keyword point:struct+1 int:keyword x:property+1 int:keyword y:property+1 /* Manhattan norm of p */:comment int:keyword norm:function+1 struct:keyword point:struct *:operator p:parameter+1 //@:macro requires:keyword p:parameter !=:operator NULL:keyword
   SERVER EXIT: 0
 
 Diagnostics are published for a file with errors:
@@ -47,7 +48,7 @@ Diagnostics are published for a file with errors:
   > EOF
   $ ./lsp_client.exe "$(command -v c0ls)" broken.c0 0 5 0 5 0 5
   CAPS: hoverProvider=true definitionProvider=true documentSymbolProvider=true positionEncoding="utf-8"
-  CAPS2: completion=yes signatureHelp=yes
+  CAPS2: completion=yes signatureHelp=yes semanticTokens=yes
   DIAGNOSTICS: 1
     line 1: expected to find a 'int', but this expression has an incompatible type: 'bool'
   HOVER: ```c0\nint f()\n```\n
@@ -55,4 +56,5 @@ Diagnostics are published for a file with errors:
   SYMBOLS: f
   COMPLETION (5): f, assert, error, alloc, alloc_array
   SIGNATURE: none
+  SEMTOK (4): int:keyword f:function+1 return:keyword true:keyword
   SERVER EXIT: 0

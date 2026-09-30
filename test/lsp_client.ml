@@ -90,7 +90,9 @@ let () =
     in
     let has k = match member k caps with `Null -> "no" | _ -> "yes" in
     print_endline ("CAPS: " ^ String.concat " " shown);
-    print_endline ("CAPS2: completion=" ^ has "completionProvider" ^ " signatureHelp=" ^ has "signatureHelpProvider")
+    print_endline
+      ("CAPS2: completion=" ^ has "completionProvider" ^ " signatureHelp="
+     ^ has "signatureHelpProvider" ^ " semanticTokens=" ^ has "semanticTokensProvider")
   | None ->
     print_endline "no initialize response";
     exit 1);
@@ -112,6 +114,8 @@ let () =
     (request 4 "textDocument/documentSymbol" (`Assoc [ ("textDocument", text_doc uri) ]));
   send oc (request 5 "textDocument/completion" (doc_pos uri cl cc));
   send oc (request 6 "textDocument/signatureHelp" (doc_pos uri sl sc));
+  send oc
+    (request 7 "textDocument/semanticTokens/full" (`Assoc [ ("textDocument", text_doc uri) ]));
   send oc (request 99 "shutdown" `Null);
   send oc (notification "exit" `Null);
   let seen_diags = ref false in
@@ -172,6 +176,34 @@ let () =
             (fun s -> Printf.printf "SIGNATURE: %s\n" (to_string_default "?" (member "label" s)))
             sigs;
           if sigs = [] then print_endline "SIGNATURE: none"
+        | `Int 7 ->
+          (* decode the delta-encoded tokens back into text spans *)
+          let legend =
+            [| "type"; "struct"; "parameter"; "variable"; "property"; "function";
+               "macro"; "keyword"; "comment"; "string"; "number"; "operator" |]
+          in
+          let data =
+            to_list (member "data" (member "result" msg))
+            |> List.map (function `Int i -> i | _ -> 0)
+          in
+          let lines = Array.of_list (String.split_on_char '\n' text) in
+          let rec decode line col out = function
+            | dl :: dc :: len :: ty :: mods :: rest ->
+              let line = line + dl in
+              let col = if dl = 0 then col + dc else dc in
+              let word =
+                if line < Array.length lines && col + len <= String.length lines.(line) then
+                  String.sub lines.(line) col len
+                else "?"
+              in
+              let tyname = if ty < Array.length legend then legend.(ty) else "?" in
+              let mods_str = if mods = 0 then "" else Printf.sprintf "+%d" mods in
+              decode line col (Printf.sprintf "%s:%s%s" word tyname mods_str :: out) rest
+            | _ -> List.rev out
+          in
+          let toks = decode 0 0 [] data in
+          Printf.printf "SEMTOK (%d): %s\n" (List.length toks)
+            (String.concat " " (List.filteri (fun i _ -> i < 18) toks))
         | `Int 99 -> continue := false
         | _ -> ()))
   done;

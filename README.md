@@ -20,6 +20,14 @@ Features:
   fields after `.` / `->`, and contract keywords after `//@`
 - **Signature help** while typing call arguments
 - **Document symbols** (outline)
+- **Semantic tokens** (`textDocument/semanticTokens/full`): the server
+  supplies the *complete* highlighting token stream — keywords, comments,
+  strings, numbers, operators, `#use` pragmas, `//@`/`/*@ @*/` contracts —
+  and classifies identifiers with the typechecker's knowledge (function,
+  parameter, variable, typedef, struct name, struct field, plus
+  `declaration` / `defaultLibrary` modifiers). Editors get full C0 syntax
+  highlighting from the LSP alone, with no syntax file or tree-sitter
+  grammar needed.
 - **`#use <lib>`** support with the standard library headers bundled
   (`conio`, `string`, `parse`, `file`, `args`, `img`, `rand`, `util`, ...)
 - **Multi-file projects** via the 15-122 `README.txt` convention: a line like
@@ -69,6 +77,11 @@ vim.lsp.config['c0ls'] = {
 }
 vim.lsp.enable 'c0ls'
 ```
+
+Highlighting comes from the server's semantic tokens: Neovim applies them
+automatically once the server attaches (`:checkhealth vim.lsp` should show
+`semantic_tokens` enabled for the buffer). Colors use the standard
+`@lsp.type.*` highlight groups, so any colorscheme works.
 
 ### Neovim (older, or with nvim-lspconfig)
 

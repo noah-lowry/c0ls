@@ -142,6 +142,14 @@ class c0_lsp_server =
       {
         c with
         signatureHelpProvider = Some (SignatureHelpOptions.create ~triggerCharacters:[ "("; "," ] ());
+        semanticTokensProvider =
+          Some
+            (`SemanticTokensOptions
+               (SemanticTokensOptions.create
+                  ~legend:
+                    (SemanticTokensLegend.create ~tokenTypes:Semtok.token_types
+                       ~tokenModifiers:Semtok.token_modifiers)
+                  ~full:(`Bool true) ~range:false ()));
       }
 
     method! on_req_initialize ~notify_back (i : InitializeParams.t) =
@@ -636,6 +644,17 @@ class c0_lsp_server =
                 ~activeParameter:(Some argument_number) ())
           | _ -> empty))
 
+    (* ---------- semantic tokens ---------- *)
+
+    method private semantic_tokens (params : SemanticTokensParams.t) : SemanticTokens.t option =
+      let uri_s = DocumentUri.to_string params.SemanticTokensParams.textDocument.uri in
+      match Hashtbl.find_opt overlays uri_s with
+      | None -> None
+      | Some text ->
+        let genv = Hashtbl.find_opt open_files uri_s in
+        let data = Semtok.compute genv ~uri:uri_s ~text in
+        Some (SemanticTokens.create ~data ())
+
     method! on_request_unhandled : type r.
         notify_back:Jsonrpc2.notify_back ->
         id:Jsonrpc2.Req_id.t ->
@@ -645,6 +664,8 @@ class c0_lsp_server =
         match r with
         | Linol_lsp.Lsp.Client_request.SignatureHelp params ->
           Lwt.return (self#signature_help params)
+        | Linol_lsp.Lsp.Client_request.SemanticTokensFull params ->
+          Lwt.return (self#semantic_tokens params)
         | _ -> super#on_request_unhandled ~notify_back ~id r
   end
 
