@@ -87,9 +87,15 @@ let mark_non_interface (file : source_file) (decls : decl list) : unit =
     let rec go i = i + lw <= ll && (String.sub line i lw = word || go (i + 1)) in
     lw > 0 && go 0
   in
-  let interface_start =
-    List.find_index (fun line -> contains line "Interface") lines
+  (* List.find_index only exists from OCaml 5.1 on *)
+  let find_index pred lst =
+    let rec go i = function
+      | [] -> None
+      | x :: rest -> if pred x then Some i else go (i + 1) rest
+    in
+    go 0 lst
   in
+  let interface_start = find_index (fun line -> contains line "Interface") lines in
   match interface_start with
   | None ->
     (* no interface section: everything is public *)

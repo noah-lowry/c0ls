@@ -10,7 +10,7 @@ type t = {
   mutable libfuncs : SSet.t;
   mutable libs_loaded : SSet.t; (* #use <foo> *)
   mutable files_loaded : SSet.t; (* URIs, from README.txt deps and #use "foo" *)
-  decls : decl Dynarray.t;
+  decls : decl Vec.t;
 }
 
 let create () : t =
@@ -19,16 +19,15 @@ let create () : t =
     libfuncs = SSet.empty;
     libs_loaded = SSet.empty;
     files_loaded = SSet.empty;
-    decls = Dynarray.create ();
+    decls = Vec.create ();
   }
 
-let decls (genv : t) : decl list = Dynarray.to_list genv.decls
+let decls (genv : t) : decl list = Vec.to_list genv.decls
 
-let pop_last_decl (genv : t) : unit =
-  if Dynarray.length genv.decls > 0 then ignore (Dynarray.pop_last genv.decls)
+let pop_last_decl (genv : t) : unit = Vec.pop_last genv.decls
 
 let add_decl ?(library = false) (genv : t) (decl : decl) : unit =
-  Dynarray.add_last genv.decls decl;
+  Vec.add_last genv.decls decl;
   if library then begin
     match decl with
     | StructDecl s -> genv.libstructs <- SSet.add s.s_id.name genv.libstructs
@@ -58,9 +57,9 @@ type actual =
   | ANamedFun of fundecl (* a typedef'd function type *)
 
 let find_decl (genv : t) (pred : decl -> 'a option) : 'a option =
-  let n = Dynarray.length genv.decls in
+  let n = Vec.length genv.decls in
   let rec go i = if i >= n then None else
-    match pred (Dynarray.get genv.decls i) with
+    match pred (Vec.get genv.decls i) with
     | Some x -> Some x
     | None -> go (i + 1)
   in
@@ -108,10 +107,10 @@ let rec actual_type (genv : t) (ty : typ) : actual =
 let get_function_declaration ?filename (genv : t) (name : string) : fundecl option =
   let result = ref None in
   let found = ref None in
-  let n = Dynarray.length genv.decls in
+  let n = Vec.length genv.decls in
   (try
      for i = 0 to n - 1 do
-       match Dynarray.get genv.decls i with
+       match Vec.get genv.decls i with
        | FunDecl f when f.fname.name = name -> (
          match filename with
          | Some file ->
@@ -139,10 +138,10 @@ let get_function_declaration ?filename (genv : t) (name : string) : fundecl opti
 (* The operative struct declaration: a definition if one exists. *)
 let get_struct_definition (genv : t) (name : string) : structdecl option =
   let result = ref None in
-  let n = Dynarray.length genv.decls in
+  let n = Vec.length genv.decls in
   (try
      for i = 0 to n - 1 do
-       match Dynarray.get genv.decls i with
+       match Vec.get genv.decls i with
        | StructDecl s when s.s_id.name = name ->
          if !result = None then result := Some s;
          if s.s_fields <> None then begin

@@ -9,8 +9,8 @@ go-to-definition, completion, signature help and document symbols,
 including support for #use libraries and multi-file projects driven by
 README.txt / project.txt files."""
 depends: [
-  "ocaml" {>= "5.1"}
-  "dune" {>= "3.11"}
+  "ocaml" {>= "4.14"}
+  "dune" {>= "3.0"}
   "yojson"
   "lwt"
   "linol"

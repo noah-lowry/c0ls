@@ -1,4 +1,4 @@
-(lang dune 3.11)
+(lang dune 3.0)
 (cram enable)
 (name c0ls)
 
@@ -15,7 +15,7 @@ go-to-definition, completion, signature help and document symbols,
 including support for #use libraries and multi-file projects driven by
 README.txt / project.txt files.")
  (depends
-  (ocaml (>= 5.1))
+  (ocaml (>= 4.14))
   dune
   yojson
   lwt

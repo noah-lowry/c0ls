@@ -1,0 +1,21 @@
+; Install the C0 standard library headers next to the binary
+; (<prefix>/share/c0ls/c0lib), where the server looks for them.
+; Listed explicitly because glob_files with with_prefix needs dune 3.11+,
+; and we keep the project buildable with older toolchains.
+
+(install
+ (package c0ls)
+ (section share)
+ (files
+  (15411.h0 as c0lib/15411.h0)
+  (args.h0 as c0lib/args.h0)
+  (conio.h0 as c0lib/conio.h0)
+  (curses.h0 as c0lib/curses.h0)
+  (dub.h0 as c0lib/dub.h0)
+  (file.h0 as c0lib/file.h0)
+  (fpt.h0 as c0lib/fpt.h0)
+  (img.h0 as c0lib/img.h0)
+  (parse.h0 as c0lib/parse.h0)
+  (rand.h0 as c0lib/rand.h0)
+  (string.h0 as c0lib/string.h0)
+  (util.h0 as c0lib/util.h0)))

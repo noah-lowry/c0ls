@@ -3,9 +3,3 @@
  (public_name c0ls)
  (package c0ls)
  (libraries c0_lsp linol-lwt))
-
-(install
- (package c0ls)
- (section share)
- (files
-  (glob_files (../c0lib/*.h0 with_prefix c0lib))))

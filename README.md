@@ -39,8 +39,9 @@ foo.c0:4:3: error: variable z not declared
 
 ## Building and installing
 
-Requires OCaml ≥ 5.1 with `dune`, `linol`, `linol-lwt` (which pull in `lsp`,
-`jsonrpc`, `lwt`, `yojson`):
+Requires OCaml ≥ 4.14 (the default OCaml on CMU's Andrew Linux servers works)
+with `dune`, `linol`, `linol-lwt` (which pull in `lsp`, `jsonrpc`, `lwt`,
+`yojson`):
 
 ```console
 $ opam install dune linol linol-lwt
