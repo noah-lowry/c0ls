@@ -1,0 +1,9 @@
+(executable
+ (name lsp_client)
+ (libraries yojson unix))
+
+(cram
+ (deps
+  %{bin:c0ls}
+  %{exe:lsp_client.exe}
+  (glob_files %{project_root}/c0lib/*.h0)))
