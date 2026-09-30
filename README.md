@@ -1,3 +1,5 @@
+disclaimer: this is a port of the official C0 LSP for vscode that works as a general purpose language server in other text editors. there should be no guarantees of the quality or reliability of this software in the future, and exists only to provide a little extra convenience when doing cmu coursework.
+
 # c0ls — a language server for C0
 
 `c0ls` is an editor-agnostic [LSP](https://microsoft.github.io/language-server-protocol/)
