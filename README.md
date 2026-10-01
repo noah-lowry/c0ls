@@ -47,6 +47,36 @@ foo.c0:4:3: error: variable z not declared
 
 ## Building and installing
 
+### With Nix
+
+The repo is a flake, so no OCaml toolchain setup is needed:
+
+```console
+$ nix run github:noah-lowry/c0ls          # run the server directly
+$ nix profile install github:noah-lowry/c0ls
+$ nix build                               # ./result/bin/c0ls
+```
+
+To use it from another flake, either reference the package or add the
+provided overlay:
+
+```nix
+{
+  inputs.c0ls.url = "github:noah-lowry/c0ls";
+
+  # ... then, e.g. in a home-manager or NixOS module:
+  #   environment.systemPackages = [ inputs.c0ls.packages.${pkgs.system}.default ];
+  # or
+  #   nixpkgs.overlays = [ inputs.c0ls.overlays.default ];   # provides pkgs.c0ls
+}
+```
+
+`nix develop` drops you into a shell with dune, the OCaml dependencies,
+`ocaml-lsp`, `ocamlformat` and `utop`, so `dune build` / `dune test` work
+inside it.
+
+### With opam
+
 Requires OCaml ≥ 4.14 (the default OCaml on CMU's Andrew Linux servers works)
 with `dune`, `linol`, `linol-lwt` (which pull in `lsp`, `jsonrpc`, `lwt`,
 `yojson`):
@@ -167,3 +197,4 @@ language-servers = ["c0ls"]
 - `lib/server.ml` — the LSP server (linol); `lib/cli.ml` — `c0ls check`
 - `c0lib/` — the bundled standard library headers
 - `test/` — cram tests, including a scripted end-to-end LSP session
+- `flake.nix`, `package.nix` — Nix flake and package definition
